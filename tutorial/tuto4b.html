@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>PURE Unobtrusive Rendering Engine</title>
+    <script src="../libs/jquery.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../libs/pure.js"></script>
+  </head>
+  <body>
+    <div id="template">
+      <div class="foo"></div>
+    </div>
+
+    <script>
+      $('#template').render({ a: 'hello' }, { '.foo': 'a', '.bar?': 'b' });
+    </script>
+  </body>
+</html>

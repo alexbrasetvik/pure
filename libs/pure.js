@@ -50,7 +50,7 @@ $p.core = function(sel, ctxt, plugins){
 		// another signature to prepend to attributes and avoid checks: style, height, on[events]...
 		attPfx = '_a' + Math.floor( Math.random() * 1000000 ) + '_',
 		// rx to parse selectors, e.g. "+tr.foo[class]"
-		selRx = /^(\+)?([^\@\+]+)?\@?([^\+]+)?(\+)?$/,
+		selRx = /^(\+)?([^\@\+\?]+)?\@?([^\+\?]+)?(\+)?(\?)?$/,
 		// set automatically attributes for some tags
 		autoAttr = {
 			IMG:'src',
@@ -234,9 +234,10 @@ $p.core = function(sel, ctxt, plugins){
 
 	// wrap in an object the target node/attr and their properties
 	function gettarget(dom, sel, isloop){
-		var osel, prepend, selector, attr, append, target = [];
+		var osel, prepend, selector, attr, append, isOptional, target = [];
 		if( typeof sel === 'string' ){
-			osel = sel;
+			// The last ? means it's optional, but remove it so it doesn't result in an invalid selector.
+			osel = sel.replace(/\?$/, '');
 			var m = sel.match(selRx);
 			if( !m ){
 				error( 'bad selector syntax: ' + sel );
@@ -246,6 +247,7 @@ $p.core = function(sel, ctxt, plugins){
 			selector = m[2];
 			attr = m[3];
 			append = m[4];
+			isOptional = (m[5] == '?');
 			
 			if(selector === '.' || ( !selector && attr ) ){
 				target[0] = dom;
@@ -253,7 +255,9 @@ $p.core = function(sel, ctxt, plugins){
 				target = plugins.find(dom, selector);
 			}
 			if(!target || target.length === 0){
-				return error('The node "' + sel + '" was not found in the template:\n' + outerHTML(dom).replace(/\t/g,'  '));
+				if(!isOptional){
+					return error('The node "' + sel + '" was not found in the template:\n' + outerHTML(dom).replace(/\t/g,'  '));
+				}
 			}
 		}else{
 			// autoRender node
